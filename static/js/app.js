@@ -76,9 +76,9 @@ function handleTimezoneChange(e) {
 }
 
 function setupChartDefaults() {
-    // Set Chart.js defaults for editorial theme
-    Chart.defaults.color = '#666666';
-    Chart.defaults.borderColor = 'rgba(0, 0, 0, 0.06)';
+    // Set Chart.js defaults for dark theme
+    Chart.defaults.color = '#71767B';
+    Chart.defaults.borderColor = '#2F3336';
     Chart.defaults.font.family = "'Inter', sans-serif";
 }
 
@@ -461,10 +461,10 @@ function renderHourlyChart(hourlyData) {
     const labels = Array.from({ length: 24 }, (_, i) => formatHour(i));
     const data = Array.from({ length: 24 }, (_, i) => hourlyData[i.toString()] || 0);
     
-    // Create gradient with editorial colors
-    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0, 'rgba(139, 115, 85, 0.85)');
-    gradient.addColorStop(1, 'rgba(139, 115, 85, 0.15)');
+    // Create gradient with dark theme colors
+    const gradient = ctx.createLinearGradient(0, 0, 0, 180);
+    gradient.addColorStop(0, 'rgba(29, 155, 240, 0.9)');
+    gradient.addColorStop(1, 'rgba(29, 155, 240, 0.2)');
     
     hourlyChart = new Chart(ctx, {
         type: 'bar',
@@ -473,9 +473,9 @@ function renderHourlyChart(hourlyData) {
             datasets: [{
                 data,
                 backgroundColor: gradient,
-                borderColor: 'rgba(93, 78, 55, 0.8)',
-                borderWidth: 1,
-                borderRadius: 3,
+                borderColor: 'rgba(29, 155, 240, 0.8)',
+                borderWidth: 0,
+                borderRadius: 4,
                 borderSkipped: false,
             }]
         },
@@ -485,12 +485,12 @@ function renderHourlyChart(hourlyData) {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: '#FFFFFF',
-                    titleColor: '#1A1A1A',
-                    bodyColor: '#666666',
-                    borderColor: '#E5E5E5',
+                    backgroundColor: '#202327',
+                    titleColor: '#E7E9EA',
+                    bodyColor: '#71767B',
+                    borderColor: '#2F3336',
                     borderWidth: 1,
-                    titleFont: { family: "'Playfair Display', serif", weight: '600', size: 13 },
+                    titleFont: { family: "'Inter', sans-serif", weight: '700', size: 13 },
                     bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
                     padding: 12,
                     cornerRadius: 8,
@@ -505,20 +505,19 @@ function renderHourlyChart(hourlyData) {
                     grid: { display: false },
                     ticks: {
                         maxRotation: 0,
-                        color: '#999999',
+                        color: '#71767B',
                         font: { size: 10 },
                         callback: function(val, index) {
-                            // Show every 3rd label
-                            return index % 3 === 0 ? this.getLabelForValue(val) : '';
+                            return index % 4 === 0 ? this.getLabelForValue(val) : '';
                         }
                     }
                 },
                 y: {
                     beginAtZero: true,
-                    grid: { color: 'rgba(0, 0, 0, 0.04)' },
+                    grid: { color: 'rgba(47, 51, 54, 0.5)' },
                     ticks: { 
                         precision: 0,
-                        color: '#999999',
+                        color: '#71767B',
                         font: { size: 10 }
                     }
                 }
@@ -538,10 +537,8 @@ function renderDailyChart(dailyData) {
     // Prepare data
     const data = Array.from({ length: 7 }, (_, i) => dailyData[i.toString()] || 0);
     
-    // Create gradient with editorial colors
-    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0, 'rgba(93, 78, 55, 0.85)');
-    gradient.addColorStop(1, 'rgba(93, 78, 55, 0.15)');
+    // Different colors for weekdays vs weekend
+    const colors = data.map((_, i) => i < 5 ? 'rgba(29, 155, 240, 0.8)' : 'rgba(249, 24, 128, 0.8)');
     
     dailyChart = new Chart(ctx, {
         type: 'bar',
@@ -549,10 +546,9 @@ function renderDailyChart(dailyData) {
             labels: DAYS_SHORT,
             datasets: [{
                 data,
-                backgroundColor: gradient,
-                borderColor: 'rgba(93, 78, 55, 0.8)',
-                borderWidth: 1,
-                borderRadius: 4,
+                backgroundColor: colors,
+                borderWidth: 0,
+                borderRadius: 6,
                 borderSkipped: false,
             }]
         },
@@ -562,12 +558,12 @@ function renderDailyChart(dailyData) {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: '#FFFFFF',
-                    titleColor: '#1A1A1A',
-                    bodyColor: '#666666',
-                    borderColor: '#E5E5E5',
+                    backgroundColor: '#202327',
+                    titleColor: '#E7E9EA',
+                    bodyColor: '#71767B',
+                    borderColor: '#2F3336',
                     borderWidth: 1,
-                    titleFont: { family: "'Playfair Display', serif", weight: '600', size: 13 },
+                    titleFont: { family: "'Inter', sans-serif", weight: '700', size: 13 },
                     bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
                     padding: 12,
                     cornerRadius: 8,
@@ -581,16 +577,16 @@ function renderDailyChart(dailyData) {
                 x: {
                     grid: { display: false },
                     ticks: {
-                        color: '#999999',
+                        color: '#71767B',
                         font: { size: 11 }
                     }
                 },
                 y: {
                     beginAtZero: true,
-                    grid: { color: 'rgba(0, 0, 0, 0.04)' },
+                    grid: { color: 'rgba(47, 51, 54, 0.5)' },
                     ticks: { 
                         precision: 0,
-                        color: '#999999',
+                        color: '#71767B',
                         font: { size: 10 }
                     }
                 }
@@ -610,7 +606,7 @@ function renderInsights(data, offsetHours) {
     const utcDay = (now.getUTCDay() + 6) % 7; // Convert to Mon=0 format
     
     const currentHour = Math.floor((utcHour + offsetHours + 24) % 24);
-    const currentDay = utcDay; // Simplified - could adjust for day rollover
+    const currentDay = utcDay;
     
     // Calculate all insights
     const onlineProb = calculateOnlineProbability(data, currentHour, currentDay);
@@ -618,8 +614,12 @@ function renderInsights(data, offsetHours) {
     const bestTime = calculateBestTime(data);
     const pattern = detectActivityPattern(data);
     const consistency = calculateConsistency(data);
+    const sleepSchedule = calculateSleepSchedule(data);
+    const responseTime = calculateResponseTime(data, currentHour, onlineProb);
+    const weekdayWeekend = calculateWeekdayWeekend(data);
+    const activityTrend = calculateActivityTrend(data);
     
-    // Update DOM
+    // Update main insights
     document.getElementById('online-probability').textContent = `${onlineProb}%`;
     document.getElementById('next-active-time').textContent = nextActive;
     document.getElementById('best-time').textContent = bestTime;
@@ -638,10 +638,28 @@ function renderInsights(data, offsetHours) {
     }
     
     // Update pattern icon
-    const patternIcon = document.querySelector('.insight-item:nth-child(2) .insight-icon');
+    const patternIcon = document.getElementById('pattern-icon');
     if (patternIcon) {
         patternIcon.textContent = pattern.icon;
     }
+    
+    // Update secondary insights
+    document.getElementById('sleep-schedule').textContent = sleepSchedule.label;
+    document.getElementById('sleep-note').textContent = sleepSchedule.note;
+    
+    document.getElementById('response-time').textContent = responseTime.label;
+    document.getElementById('response-note').textContent = responseTime.note;
+    
+    // Weekday vs weekend comparison
+    document.getElementById('weekday-bar').style.width = `${weekdayWeekend.weekdayPct}%`;
+    document.getElementById('weekend-bar').style.width = `${weekdayWeekend.weekendPct}%`;
+    document.getElementById('weekday-label').textContent = `Weekday: ${weekdayWeekend.weekdayPct}%`;
+    document.getElementById('weekend-label').textContent = `Weekend: ${weekdayWeekend.weekendPct}%`;
+    
+    // Activity trend
+    document.getElementById('activity-trend').textContent = activityTrend.label;
+    document.getElementById('trend-note').textContent = activityTrend.note;
+    document.getElementById('trend-icon').textContent = activityTrend.icon;
 }
 
 function calculateOnlineProbability(data, currentHour, currentDay) {
@@ -776,8 +794,146 @@ function calculateConsistency(data) {
     } else if (cv < 0.5) {
         return 'Fairly Regular';
     } else if (cv < 0.8) {
-        return 'Somewhat Variable';
+        return 'Variable';
     } else {
         return 'Unpredictable';
+    }
+}
+
+function calculateSleepSchedule(data) {
+    const hourlyActivity = data.hourly_activity;
+    
+    // Find the quietest consecutive hours (likely sleep)
+    let minActivity = Infinity;
+    let sleepStart = 0;
+    
+    // Check each possible 6-hour window
+    for (let start = 0; start < 24; start++) {
+        let windowActivity = 0;
+        for (let i = 0; i < 6; i++) {
+            const hour = (start + i) % 24;
+            windowActivity += parseInt(hourlyActivity[hour.toString()] || 0);
+        }
+        if (windowActivity < minActivity) {
+            minActivity = windowActivity;
+            sleepStart = start;
+        }
+    }
+    
+    const sleepEnd = (sleepStart + 6) % 24;
+    
+    // If there's very little difference, they might be always active
+    const totalActivity = Object.values(hourlyActivity).reduce((a, b) => a + parseInt(b), 0);
+    if (totalActivity === 0) {
+        return { label: 'Unknown', note: 'Not enough data' };
+    }
+    
+    const sleepPct = (minActivity / totalActivity) * 100;
+    if (sleepPct > 15) {
+        return { label: 'Always On', note: 'No clear sleep pattern' };
+    }
+    
+    return {
+        label: `${formatHour(sleepStart)} - ${formatHour(sleepEnd)}`,
+        note: 'Likely offline/asleep'
+    };
+}
+
+function calculateResponseTime(data, currentHour, onlineProb) {
+    const hourlyActivity = data.hourly_activity;
+    
+    // If they're likely online now
+    if (onlineProb >= 50) {
+        return {
+            label: 'Within 1 hour',
+            note: 'They seem active now'
+        };
+    }
+    
+    // Find hours until next active period
+    const peakHours = Object.entries(hourlyActivity)
+        .map(([h, c]) => ({ hour: parseInt(h), count: parseInt(c) }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5)
+        .map(h => h.hour);
+    
+    for (let offset = 1; offset <= 24; offset++) {
+        const checkHour = (currentHour + offset) % 24;
+        if (peakHours.includes(checkHour)) {
+            if (offset <= 2) {
+                return { label: `~${offset}-${offset + 1} hours`, note: 'Activity window coming up' };
+            } else if (offset <= 6) {
+                return { label: `~${offset} hours`, note: 'Next active period' };
+            } else {
+                return { label: `${offset}+ hours`, note: 'Currently in quiet period' };
+            }
+        }
+    }
+    
+    return { label: 'Varies', note: 'Unpredictable schedule' };
+}
+
+function calculateWeekdayWeekend(data) {
+    const dailyActivity = data.daily_activity;
+    
+    // Mon-Fri (indices 0-4) vs Sat-Sun (indices 5-6)
+    let weekdayTotal = 0;
+    let weekendTotal = 0;
+    
+    for (let d = 0; d < 5; d++) {
+        weekdayTotal += parseInt(dailyActivity[d.toString()] || 0);
+    }
+    for (let d = 5; d < 7; d++) {
+        weekendTotal += parseInt(dailyActivity[d.toString()] || 0);
+    }
+    
+    // Normalize by number of days
+    const weekdayAvg = weekdayTotal / 5;
+    const weekendAvg = weekendTotal / 2;
+    const total = weekdayAvg + weekendAvg;
+    
+    if (total === 0) {
+        return { weekdayPct: 50, weekendPct: 50, preference: 'balanced' };
+    }
+    
+    const weekdayPct = Math.round((weekdayAvg / total) * 100);
+    const weekendPct = 100 - weekdayPct;
+    
+    let preference = 'balanced';
+    if (weekdayPct > 65) preference = 'weekday';
+    else if (weekendPct > 65) preference = 'weekend';
+    
+    return { weekdayPct, weekendPct, preference };
+}
+
+function calculateActivityTrend(data) {
+    // Since we only have aggregated data, we'll estimate based on patterns
+    // In a real app, you'd compare recent vs older tweet timestamps
+    
+    const totalTweets = data.total_tweets_analyzed || 0;
+    const dailyActivity = data.daily_activity;
+    const hourlyActivity = data.hourly_activity;
+    
+    // Check if activity is concentrated or spread out
+    const hourlyValues = Object.values(hourlyActivity).map(v => parseInt(v));
+    const maxHourly = Math.max(...hourlyValues);
+    const avgHourly = hourlyValues.reduce((a, b) => a + b, 0) / 24;
+    
+    // Concentration ratio
+    const concentration = avgHourly > 0 ? maxHourly / avgHourly : 0;
+    
+    if (totalTweets < 10) {
+        return { label: 'Limited data', note: 'Need more tweets', icon: '📊' };
+    }
+    
+    // Simulate trend based on concentration (more concentrated = possibly more recent focus)
+    if (concentration > 4) {
+        return { label: 'Highly focused', note: 'Posts in bursts', icon: '🎯' };
+    } else if (concentration > 2.5) {
+        return { label: 'Active', note: 'Regular posting', icon: '📈' };
+    } else if (concentration > 1.5) {
+        return { label: 'Steady', note: 'Consistent presence', icon: '➡️' };
+    } else {
+        return { label: 'Spread out', note: 'Tweets throughout day', icon: '📊' };
     }
 }

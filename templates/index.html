@@ -147,7 +147,7 @@
                             </div>
                         </div>
                         <div class="insight-item">
-                            <span class="insight-icon">🦉</span>
+                            <span class="insight-icon" id="pattern-icon">🦉</span>
                             <div class="insight-text">
                                 <span class="insight-label">Activity pattern</span>
                                 <span class="insight-value" id="activity-pattern">—</span>
@@ -156,10 +156,52 @@
                         <div class="insight-item">
                             <span class="insight-icon">📊</span>
                             <div class="insight-text">
-                                <span class="insight-label">Schedule consistency</span>
+                                <span class="insight-label">Consistency</span>
                                 <span class="insight-value" id="consistency-score">—</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Insights -->
+                <div class="insights-secondary">
+                    <div class="insight-block">
+                        <div class="insight-block-header">
+                            <span class="insight-block-icon">😴</span>
+                            <span class="insight-block-title">Sleep Schedule</span>
+                        </div>
+                        <div class="insight-block-value" id="sleep-schedule">—</div>
+                        <div class="insight-block-sub" id="sleep-note">Estimated quiet hours</div>
+                    </div>
+                    <div class="insight-block">
+                        <div class="insight-block-header">
+                            <span class="insight-block-icon">⚡</span>
+                            <span class="insight-block-title">Response Window</span>
+                        </div>
+                        <div class="insight-block-value" id="response-time">—</div>
+                        <div class="insight-block-sub" id="response-note">If you tweet now</div>
+                    </div>
+                    <div class="insight-block">
+                        <div class="insight-block-header">
+                            <span class="insight-block-icon">📅</span>
+                            <span class="insight-block-title">Weekday vs Weekend</span>
+                        </div>
+                        <div class="comparison-bar">
+                            <div class="comparison-segment weekday" id="weekday-bar" style="width: 50%"></div>
+                            <div class="comparison-segment weekend" id="weekend-bar" style="width: 50%"></div>
+                        </div>
+                        <div class="comparison-labels">
+                            <span id="weekday-label">Weekday: —</span>
+                            <span id="weekend-label">Weekend: —</span>
+                        </div>
+                    </div>
+                    <div class="insight-block">
+                        <div class="insight-block-header">
+                            <span class="insight-block-icon" id="trend-icon">📈</span>
+                            <span class="insight-block-title">Activity Trend</span>
+                        </div>
+                        <div class="insight-block-value" id="activity-trend">—</div>
+                        <div class="insight-block-sub" id="trend-note">Based on recent data</div>
                     </div>
                 </div>
 
