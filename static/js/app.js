@@ -268,6 +268,9 @@ function renderWithTimezone(data, offsetHours) {
     renderPeakTimes(converted.peak_hours, converted.peak_days);
     renderHourlyChart(converted.hourly_activity);
     renderDailyChart(converted.daily_activity);
+    
+    // Render live insights
+    renderInsights(converted, offsetHours);
 }
 
 function convertToTimezone(data, offsetHours) {
@@ -594,4 +597,187 @@ function renderDailyChart(dailyData) {
             }
         }
     });
+}
+
+// ============================================
+// INSIGHTS & PREDICTIONS
+// ============================================
+
+function renderInsights(data, offsetHours) {
+    // Get current time in the selected timezone
+    const now = new Date();
+    const utcHour = now.getUTCHours();
+    const utcDay = (now.getUTCDay() + 6) % 7; // Convert to Mon=0 format
+    
+    const currentHour = Math.floor((utcHour + offsetHours + 24) % 24);
+    const currentDay = utcDay; // Simplified - could adjust for day rollover
+    
+    // Calculate all insights
+    const onlineProb = calculateOnlineProbability(data, currentHour, currentDay);
+    const nextActive = calculateNextActiveWindow(data, currentHour, currentDay);
+    const bestTime = calculateBestTime(data);
+    const pattern = detectActivityPattern(data);
+    const consistency = calculateConsistency(data);
+    
+    // Update DOM
+    document.getElementById('online-probability').textContent = `${onlineProb}%`;
+    document.getElementById('next-active-time').textContent = nextActive;
+    document.getElementById('best-time').textContent = bestTime;
+    document.getElementById('activity-pattern').textContent = pattern.label;
+    document.getElementById('consistency-score').textContent = consistency;
+    
+    // Update status indicator
+    const indicator = document.getElementById('status-indicator');
+    indicator.className = 'status-indicator';
+    if (onlineProb >= 60) {
+        indicator.classList.add('high');
+    } else if (onlineProb >= 30) {
+        indicator.classList.add('medium');
+    } else {
+        indicator.classList.add('low');
+    }
+    
+    // Update pattern icon
+    const patternIcon = document.querySelector('.insight-item:nth-child(2) .insight-icon');
+    if (patternIcon) {
+        patternIcon.textContent = pattern.icon;
+    }
+}
+
+function calculateOnlineProbability(data, currentHour, currentDay) {
+    const heatmap = data.heatmap_data;
+    const hourlyActivity = data.hourly_activity;
+    
+    // Get activity for current hour across all days
+    const currentHourTotal = parseInt(hourlyActivity[currentHour.toString()] || 0);
+    
+    // Get total activity
+    const totalActivity = Object.values(hourlyActivity).reduce((a, b) => a + parseInt(b), 0);
+    
+    if (totalActivity === 0) return 0;
+    
+    // Calculate probability based on historical activity
+    // Weight current day's data more heavily
+    const currentSlotActivity = heatmap[currentDay]?.[currentHour] || 0;
+    const avgHourActivity = currentHourTotal / 7;
+    
+    // Combine slot-specific and hour-general probability
+    const maxSlotActivity = Math.max(...heatmap.flat());
+    const slotProb = maxSlotActivity > 0 ? (currentSlotActivity / maxSlotActivity) * 100 : 0;
+    const hourProb = (currentHourTotal / Math.max(...Object.values(hourlyActivity).map(v => parseInt(v)))) * 100;
+    
+    // Weighted average (60% specific slot, 40% hour general)
+    const probability = Math.round(slotProb * 0.6 + hourProb * 0.4);
+    
+    return Math.min(95, Math.max(5, probability)); // Clamp between 5-95%
+}
+
+function calculateNextActiveWindow(data, currentHour, currentDay) {
+    const hourlyActivity = data.hourly_activity;
+    
+    // Find peak hours
+    const hourlyArr = Array.from({ length: 24 }, (_, i) => ({
+        hour: i,
+        count: parseInt(hourlyActivity[i.toString()] || 0)
+    })).sort((a, b) => b.count - a.count);
+    
+    const peakHours = hourlyArr.slice(0, 5).map(h => h.hour);
+    
+    // Find next peak hour from current time
+    for (let offset = 1; offset <= 24; offset++) {
+        const checkHour = (currentHour + offset) % 24;
+        if (peakHours.includes(checkHour)) {
+            if (offset === 1) {
+                return 'Within the hour';
+            } else if (offset < 24) {
+                return `In ~${offset} hour${offset > 1 ? 's' : ''}`;
+            }
+        }
+    }
+    
+    // If currently in a peak hour
+    if (peakHours.includes(currentHour)) {
+        return 'Right now!';
+    }
+    
+    return 'Check heatmap';
+}
+
+function calculateBestTime(data) {
+    const hourlyActivity = data.hourly_activity;
+    
+    // Find the hour with highest activity
+    let maxHour = 0;
+    let maxCount = 0;
+    
+    for (let h = 0; h < 24; h++) {
+        const count = parseInt(hourlyActivity[h.toString()] || 0);
+        if (count > maxCount) {
+            maxCount = count;
+            maxHour = h;
+        }
+    }
+    
+    // Return a time range
+    const startHour = maxHour;
+    const endHour = (maxHour + 2) % 24;
+    
+    return `${formatHour(startHour)} - ${formatHour(endHour)}`;
+}
+
+function detectActivityPattern(data) {
+    const hourlyActivity = data.hourly_activity;
+    
+    // Calculate activity in different periods
+    const morning = [6, 7, 8, 9, 10, 11].reduce((sum, h) => sum + parseInt(hourlyActivity[h.toString()] || 0), 0);
+    const afternoon = [12, 13, 14, 15, 16, 17].reduce((sum, h) => sum + parseInt(hourlyActivity[h.toString()] || 0), 0);
+    const evening = [18, 19, 20, 21, 22, 23].reduce((sum, h) => sum + parseInt(hourlyActivity[h.toString()] || 0), 0);
+    const night = [0, 1, 2, 3, 4, 5].reduce((sum, h) => sum + parseInt(hourlyActivity[h.toString()] || 0), 0);
+    
+    const total = morning + afternoon + evening + night;
+    if (total === 0) return { label: 'Unknown', icon: '❓' };
+    
+    // Determine pattern
+    const morningPct = morning / total;
+    const eveningPct = evening / total;
+    const nightPct = night / total;
+    const workHoursPct = (morning + afternoon) / total;
+    
+    if (nightPct > 0.3) {
+        return { label: 'Night Owl', icon: '🦉' };
+    } else if (morningPct > 0.35) {
+        return { label: 'Early Bird', icon: '🐦' };
+    } else if (workHoursPct > 0.6) {
+        return { label: '9-to-5 Pattern', icon: '💼' };
+    } else if (eveningPct > 0.4) {
+        return { label: 'Evening Active', icon: '🌆' };
+    } else {
+        return { label: 'Spread Out', icon: '📊' };
+    }
+}
+
+function calculateConsistency(data) {
+    const dailyActivity = data.daily_activity;
+    
+    // Calculate standard deviation of daily activity
+    const values = Array.from({ length: 7 }, (_, i) => parseInt(dailyActivity[i.toString()] || 0));
+    const mean = values.reduce((a, b) => a + b, 0) / 7;
+    
+    if (mean === 0) return 'No data';
+    
+    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / 7;
+    const stdDev = Math.sqrt(variance);
+    
+    // Coefficient of variation (lower = more consistent)
+    const cv = stdDev / mean;
+    
+    if (cv < 0.3) {
+        return 'Very Consistent';
+    } else if (cv < 0.5) {
+        return 'Fairly Regular';
+    } else if (cv < 0.8) {
+        return 'Somewhat Variable';
+    } else {
+        return 'Unpredictable';
+    }
 }

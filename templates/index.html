@@ -120,6 +120,49 @@
                     </div>
                 </div>
 
+                <!-- Live Insights Card -->
+                <div class="insights-card" id="insights-card">
+                    <div class="insight-main">
+                        <div class="online-status" id="online-status">
+                            <div class="status-indicator" id="status-indicator"></div>
+                            <div class="status-content">
+                                <span class="status-label">Chance they're online now</span>
+                                <span class="status-value" id="online-probability">—</span>
+                            </div>
+                        </div>
+                        <div class="next-window" id="next-window">
+                            <span class="window-icon">⏰</span>
+                            <div class="window-content">
+                                <span class="window-label">Next likely active</span>
+                                <span class="window-value" id="next-active-time">—</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="insight-details">
+                        <div class="insight-item">
+                            <span class="insight-icon">🎯</span>
+                            <div class="insight-text">
+                                <span class="insight-label">Best time to reach</span>
+                                <span class="insight-value" id="best-time">—</span>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <span class="insight-icon">🦉</span>
+                            <div class="insight-text">
+                                <span class="insight-label">Activity pattern</span>
+                                <span class="insight-value" id="activity-pattern">—</span>
+                            </div>
+                        </div>
+                        <div class="insight-item">
+                            <span class="insight-icon">📊</span>
+                            <div class="insight-text">
+                                <span class="insight-label">Schedule consistency</span>
+                                <span class="insight-value" id="consistency-score">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="charts-grid">
                     <!-- Heatmap -->
                     <div class="chart-card heatmap-card">
