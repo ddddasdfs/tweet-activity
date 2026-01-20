@@ -72,6 +72,7 @@ class ActivityResponse(BaseModel):
     hourly_activity: dict  # hour (0-23) -> count
     daily_activity: dict   # day (0-6, Mon-Sun) -> count
     heatmap_data: list     # 7 days x 24 hours matrix
+    tweets_by_slot: Optional[list] = None  # Tweet previews by day/hour
     peak_hours: list       # Top 3 most active hours
     peak_days: list        # Top 3 most active days
     timezone_note: str
@@ -86,6 +87,21 @@ def generate_demo_data(username: str) -> ActivityResponse:
     hourly = defaultdict(int)
     daily = defaultdict(int)
     heatmap = [[0 for _ in range(24)] for _ in range(7)]
+    tweets_by_slot = [[[] for _ in range(24)] for _ in range(7)]
+    
+    # Sample demo tweets
+    demo_tweets = [
+        "Just shipped a new feature! 🚀",
+        "Great conversation today about the future of tech",
+        "Reading through some interesting research papers",
+        "Coffee and code ☕️",
+        "Building something cool...",
+        "Thoughts on the latest industry news?",
+        "Excited about what we're working on",
+        "Learning never stops 📚",
+        "Good morning everyone!",
+        "Late night coding session",
+    ]
     
     num_tweets = random.randint(150, 300)
     
@@ -100,6 +116,13 @@ def generate_demo_data(username: str) -> ActivityResponse:
         hourly[hour] += 1
         daily[day] += 1
         heatmap[day][hour] += 1
+        
+        # Add demo tweet preview (limit 3 per slot)
+        if len(tweets_by_slot[day][hour]) < 3:
+            tweets_by_slot[day][hour].append({
+                "text": random.choice(demo_tweets),
+                "time": f"{hour if hour <= 12 else hour - 12}:{random.randint(0,59):02d} {'AM' if hour < 12 else 'PM'}"
+            })
     
     hourly_dict = {str(h): hourly[h] for h in range(24)}
     daily_dict = {str(d): daily[d] for d in range(7)}
@@ -121,6 +144,7 @@ def generate_demo_data(username: str) -> ActivityResponse:
         hourly_activity=hourly_dict,
         daily_activity=daily_dict,
         heatmap_data=heatmap,
+        tweets_by_slot=tweets_by_slot,
         peak_hours=peak_hours,
         peak_days=peak_days,
         timezone_note="Times shown in UTC (demo mode)",

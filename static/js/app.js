@@ -14,6 +14,7 @@ let dailyChart = null;
 // Store original UTC data for timezone conversion
 let currentData = null;
 let currentTimezoneOffset = 0;
+let currentTweetsBySlot = null;
 
 // DOM Elements
 const searchForm = document.getElementById('search-form');
@@ -54,6 +55,25 @@ function setupEventListeners() {
             handleSearch(new Event('submit'), false, true); // bypass cache
         });
     }
+    
+    // Tweet modal close handlers
+    const tweetModal = document.getElementById('tweet-modal');
+    const tweetModalClose = document.getElementById('tweet-modal-close');
+    
+    if (tweetModalClose) {
+        tweetModalClose.addEventListener('click', closeTweetModal);
+    }
+    
+    if (tweetModal) {
+        tweetModal.addEventListener('click', (e) => {
+            if (e.target === tweetModal) closeTweetModal();
+        });
+    }
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeTweetModal();
+    });
 }
 
 function detectUserTimezone() {
@@ -311,6 +331,11 @@ function renderWithTimezone(data, offsetHours) {
     // Convert data to selected timezone
     const converted = convertToTimezone(data, offsetHours);
     
+    // Store tweets for modal (convert timezone too if available)
+    if (data.tweets_by_slot) {
+        currentTweetsBySlot = convertTweetsBySlot(data.tweets_by_slot, offsetHours);
+    }
+    
     // Update timezone note
     const tzNote = document.getElementById('timezone-note');
     if (tzNote) {
@@ -325,6 +350,29 @@ function renderWithTimezone(data, offsetHours) {
     
     // Render live insights
     renderInsights(converted, offsetHours);
+}
+
+function convertTweetsBySlot(tweetsBySlot, offsetHours) {
+    // Shift tweets to match timezone offset
+    const converted = Array.from({ length: 7 }, () => Array.from({ length: 24 }, () => []));
+    
+    for (let day = 0; day < 7; day++) {
+        for (let hour = 0; hour < 24; hour++) {
+            const tweets = tweetsBySlot[day]?.[hour] || [];
+            const newHour = Math.floor((hour + offsetHours + 24) % 24);
+            
+            let newDay = day;
+            if (hour + offsetHours >= 24) {
+                newDay = (day + 1) % 7;
+            } else if (hour + offsetHours < 0) {
+                newDay = (day - 1 + 7) % 7;
+            }
+            
+            converted[newDay][newHour] = [...converted[newDay][newHour], ...tweets];
+        }
+    }
+    
+    return converted;
 }
 
 function convertToTimezone(data, offsetHours) {
@@ -432,11 +480,17 @@ function renderHeatmap(heatmapData) {
             
             if (level > 0) {
                 cell.classList.add(`level-${level}`);
+                cell.style.cursor = 'pointer';
             }
             
             // Add tooltip on hover
             cell.addEventListener('mouseenter', (e) => showTooltip(e, dayIndex, hourIndex, count));
             cell.addEventListener('mouseleave', hideTooltip);
+            
+            // Add click to show tweets
+            if (count > 0) {
+                cell.addEventListener('click', () => showTweetModal(dayIndex, hourIndex, count));
+            }
             
             rowDiv.appendChild(cell);
         });
@@ -472,6 +526,58 @@ function showTooltip(event, day, hour, count) {
 function hideTooltip() {
     const tooltip = document.getElementById('heatmap-tooltip');
     if (tooltip) tooltip.remove();
+}
+
+function showTweetModal(dayIndex, hourIndex, count) {
+    const modal = document.getElementById('tweet-modal');
+    const title = document.getElementById('tweet-modal-title');
+    const body = document.getElementById('tweet-modal-body');
+    
+    if (!modal || !title || !body) return;
+    
+    // Set title
+    const dayStr = DAYS[dayIndex];
+    const hourStr = formatHour(hourIndex);
+    title.textContent = `${dayStr} at ${hourStr} (${count} tweet${count > 1 ? 's' : ''})`;
+    
+    // Get tweets for this slot
+    const tweets = currentTweetsBySlot?.[dayIndex]?.[hourIndex] || [];
+    
+    // Build content
+    if (tweets.length > 0 && tweets.some(t => t.text)) {
+        body.innerHTML = tweets
+            .filter(t => t.text)
+            .map(tweet => `
+                <div class="tweet-preview">
+                    <div class="tweet-preview-text">${escapeHtml(tweet.text)}</div>
+                    <div class="tweet-preview-time">${tweet.time || ''}</div>
+                </div>
+            `).join('');
+    } else {
+        body.innerHTML = `
+            <div class="tweet-preview-empty">
+                <span>📝</span>
+                ${count} tweet${count > 1 ? 's' : ''} at this time<br>
+                <small style="color: var(--text-muted);">Tweet content not available</small>
+            </div>
+        `;
+    }
+    
+    // Show modal
+    modal.classList.remove('hidden');
+}
+
+function closeTweetModal() {
+    const modal = document.getElementById('tweet-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function formatHour(hour) {

@@ -87,8 +87,19 @@ async def scrape_twitter_activity(username: str, max_tweets: int = 50) -> dict:
                         if time_element:
                             datetime_str = await time_element.get_attribute("datetime")
                             if datetime_str and datetime_str not in [t["datetime"] for t in tweets_data]:
+                                # Try to get tweet text
+                                tweet_text = ""
+                                try:
+                                    text_element = await tweet.query_selector('[data-testid="tweetText"]')
+                                    if text_element:
+                                        tweet_text = await text_element.inner_text()
+                                        tweet_text = tweet_text[:280] if tweet_text else ""  # Limit length
+                                except:
+                                    pass
+                                
                                 tweets_data.append({
-                                    "datetime": datetime_str
+                                    "datetime": datetime_str,
+                                    "text": tweet_text
                                 })
                     except:
                         continue
@@ -130,6 +141,9 @@ def analyze_scraped_data(scraped_data: dict) -> dict:
     daily = defaultdict(int)
     heatmap = [[0 for _ in range(24)] for _ in range(7)]
     
+    # Store tweets by day/hour for preview feature
+    tweets_by_slot = [[[] for _ in range(24)] for _ in range(7)]
+    
     for tweet in scraped_data["tweets"]:
         try:
             # Parse ISO datetime string
@@ -146,6 +160,13 @@ def analyze_scraped_data(scraped_data: dict) -> dict:
             hourly[hour] += 1
             daily[day] += 1
             heatmap[day][hour] += 1
+            
+            # Store tweet preview (limit to 3 per slot)
+            if len(tweets_by_slot[day][hour]) < 3:
+                tweets_by_slot[day][hour].append({
+                    "text": tweet.get("text", ""),
+                    "time": dt.strftime("%I:%M %p")
+                })
             
         except Exception as e:
             continue
@@ -186,6 +207,7 @@ def analyze_scraped_data(scraped_data: dict) -> dict:
         "hourly_activity": hourly_dict,
         "daily_activity": daily_dict,
         "heatmap_data": heatmap,
+        "tweets_by_slot": tweets_by_slot,
         "peak_hours": peak_hours,
         "peak_days": peak_days,
         "timezone_note": "Times shown in UTC (scraped)",
