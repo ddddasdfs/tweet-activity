@@ -161,6 +161,23 @@ def analyze_scraped_data(scraped_data: dict) -> dict:
     peak_hours = [{"hour": h, "count": c} for h, c in sorted_hours[:3] if c > 0]
     peak_days = [{"day": d, "count": c} for d, c in sorted_days[:3] if c > 0]
     
+    # Find the most recent tweet timestamp
+    last_tweet_time = None
+    if scraped_data["tweets"]:
+        try:
+            timestamps = []
+            for tweet in scraped_data["tweets"]:
+                dt_str = tweet["datetime"]
+                if dt_str.endswith("Z"):
+                    dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+                else:
+                    dt = datetime.fromisoformat(dt_str)
+                timestamps.append(dt)
+            if timestamps:
+                last_tweet_time = max(timestamps).isoformat()
+        except:
+            pass
+    
     return {
         "username": scraped_data["username"],
         "display_name": scraped_data["display_name"],
@@ -172,6 +189,7 @@ def analyze_scraped_data(scraped_data: dict) -> dict:
         "peak_hours": peak_hours,
         "peak_days": peak_days,
         "timezone_note": "Times shown in UTC (scraped)",
+        "last_tweet_time": last_tweet_time,
         "is_demo": False,
         "is_scraped": True
     }

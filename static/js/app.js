@@ -242,8 +242,15 @@ function displayResults(data) {
         profileImg.src = data.profile_image;
         profileImg.style.display = 'block';
     } else {
-        // Default avatar with initial
         profileImg.style.display = 'none';
+    }
+    
+    // Last activity
+    const lastActivityEl = document.getElementById('last-activity-time');
+    if (data.last_tweet_time && lastActivityEl) {
+        lastActivityEl.textContent = formatRelativeTime(data.last_tweet_time);
+    } else if (lastActivityEl) {
+        lastActivityEl.textContent = 'Unknown';
     }
     
     // Render visualizations with current timezone
@@ -251,6 +258,26 @@ function displayResults(data) {
     
     // Scroll to results
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function formatRelativeTime(isoString) {
+    try {
+        const date = new Date(isoString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'just now';
+        if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+        if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+        return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
+    } catch {
+        return 'Unknown';
+    }
 }
 
 function renderWithTimezone(data, offsetHours) {

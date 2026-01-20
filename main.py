@@ -42,6 +42,7 @@ class ActivityResponse(BaseModel):
     peak_hours: list       # Top 3 most active hours
     peak_days: list        # Top 3 most active days
     timezone_note: str
+    last_tweet_time: Optional[str] = None  # ISO timestamp of most recent tweet
     is_demo: bool
 
 
@@ -75,6 +76,9 @@ def generate_demo_data(username: str) -> ActivityResponse:
     peak_hours = [{"hour": h, "count": c} for h, c in sorted_hours[:3]]
     peak_days = [{"day": d, "count": c} for d, c in sorted_days[:3]]
     
+    # Generate a random last tweet time (within last 24 hours for demo)
+    last_tweet = datetime.utcnow() - timedelta(hours=random.randint(1, 24))
+    
     return ActivityResponse(
         username=username,
         display_name=f"@{username}",
@@ -86,6 +90,7 @@ def generate_demo_data(username: str) -> ActivityResponse:
         peak_hours=peak_hours,
         peak_days=peak_days,
         timezone_note="Times shown in UTC (demo mode)",
+        last_tweet_time=last_tweet.isoformat() + "Z",
         is_demo=True
     )
 
