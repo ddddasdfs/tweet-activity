@@ -1,0 +1,11 @@
+# Render Blueprint - Tweet Hours
+services:
+  - type: web
+    name: tweet-hours
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/status
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"

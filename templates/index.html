@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tweet Hours — Activity Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="grain-overlay"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12,6 12,12 16,14"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">Tweet Hours</span>
+                    <span class="logo-subtitle">Activity Analyzer</span>
+                </div>
+            </div>
+            
+            <div class="status-badge live">
+                <span class="status-dot"></span>
+                No API Needed
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="search-section">
+                <h1 class="headline">
+                    Discover when any<br>
+                    <span class="gradient-text">Twitter account</span> is active
+                </h1>
+                <p class="subheadline">
+                    Analyze tweet timestamps to find peak activity hours and patterns
+                </p>
+                
+                <form id="search-form" class="search-form">
+                    <div class="input-wrapper">
+                        <span class="at-symbol">@</span>
+                        <input 
+                            type="text" 
+                            id="username-input" 
+                            placeholder="username"
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                        <button type="submit" class="search-btn">
+                            <span class="btn-text">Analyze</span>
+                            <span class="btn-loader"></span>
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="quick-search">
+                    <span>Try:</span>
+                    <button class="quick-btn" data-username="elonmusk">elonmusk</button>
+                    <button class="quick-btn" data-username="github">github</button>
+                    <button class="quick-btn" data-username="naval">naval</button>
+                </div>
+            </section>
+
+            <section id="results-section" class="results-section hidden">
+                <div class="profile-card">
+                    <div class="profile-info">
+                        <img id="profile-image" class="profile-avatar" src="" alt="Profile">
+                        <div class="profile-details">
+                            <h2 id="display-name" class="profile-name"></h2>
+                            <span id="username-display" class="profile-handle"></span>
+                        </div>
+                    </div>
+                    <div class="profile-right">
+                        <div class="timezone-selector">
+                            <label for="timezone-select">Timezone</label>
+                            <select id="timezone-select">
+                                <option value="0">UTC</option>
+                                <option value="-12">UTC-12 (Baker Island)</option>
+                                <option value="-11">UTC-11 (Samoa)</option>
+                                <option value="-10">UTC-10 (Hawaii)</option>
+                                <option value="-9">UTC-9 (Alaska)</option>
+                                <option value="-8">UTC-8 (Pacific)</option>
+                                <option value="-7">UTC-7 (Mountain)</option>
+                                <option value="-6">UTC-6 (Central)</option>
+                                <option value="-5">UTC-5 (Eastern)</option>
+                                <option value="-4">UTC-4 (Atlantic)</option>
+                                <option value="-3">UTC-3 (São Paulo)</option>
+                                <option value="-2">UTC-2</option>
+                                <option value="-1">UTC-1 (Azores)</option>
+                                <option value="1">UTC+1 (Paris)</option>
+                                <option value="2">UTC+2 (Cairo)</option>
+                                <option value="3">UTC+3 (Moscow)</option>
+                                <option value="4">UTC+4 (Dubai)</option>
+                                <option value="5">UTC+5 (Karachi)</option>
+                                <option value="5.5">UTC+5:30 (India)</option>
+                                <option value="6">UTC+6 (Dhaka)</option>
+                                <option value="7">UTC+7 (Bangkok)</option>
+                                <option value="8">UTC+8 (Singapore)</option>
+                                <option value="9">UTC+9 (Tokyo)</option>
+                                <option value="9.5">UTC+9:30 (Adelaide)</option>
+                                <option value="10">UTC+10 (Sydney)</option>
+                                <option value="11">UTC+11</option>
+                                <option value="12">UTC+12 (Auckland)</option>
+                            </select>
+                        </div>
+                        <div class="stats-mini">
+                            <div class="stat-item">
+                                <span id="tweets-analyzed" class="stat-value">0</span>
+                                <span class="stat-label">Tweets Analyzed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <!-- Heatmap -->
+                    <div class="chart-card heatmap-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Activity Heatmap</h3>
+                            <span id="timezone-note" class="timezone-badge">UTC</span>
+                        </div>
+                        <div class="heatmap-container">
+                            <div class="heatmap-labels-y">
+                                <span>Mon</span>
+                                <span>Tue</span>
+                                <span>Wed</span>
+                                <span>Thu</span>
+                                <span>Fri</span>
+                                <span>Sat</span>
+                                <span>Sun</span>
+                            </div>
+                            <div class="heatmap-wrapper">
+                                <div id="heatmap" class="heatmap"></div>
+                                <div class="heatmap-labels-x">
+                                    <span>12am</span>
+                                    <span>6am</span>
+                                    <span>12pm</span>
+                                    <span>6pm</span>
+                                    <span>11pm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="heatmap-legend">
+                            <span>Less</span>
+                            <div class="legend-scale">
+                                <div class="legend-cell l0"></div>
+                                <div class="legend-cell l1"></div>
+                                <div class="legend-cell l2"></div>
+                                <div class="legend-cell l3"></div>
+                                <div class="legend-cell l4"></div>
+                            </div>
+                            <span>More</span>
+                        </div>
+                    </div>
+
+                    <!-- Peak Times -->
+                    <div class="chart-card peaks-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Peak Activity</h3>
+                        </div>
+                        <div class="peaks-container">
+                            <div class="peak-section">
+                                <h4 class="peak-title">🔥 Most Active Hours</h4>
+                                <div id="peak-hours" class="peak-list"></div>
+                            </div>
+                            <div class="peak-section">
+                                <h4 class="peak-title">📅 Most Active Days</h4>
+                                <div id="peak-days" class="peak-list"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hourly Chart -->
+                    <div class="chart-card hourly-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Hourly Distribution</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="hourly-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Daily Chart -->
+                    <div class="chart-card daily-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Daily Distribution</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="daily-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div id="error-message" class="error-message hidden">
+                <span class="error-icon">⚠️</span>
+                <span class="error-text"></span>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>
+                <span style="color: var(--text-secondary);">Scrapes public Twitter profiles directly — No API key required</span>
+            </p>
+        </footer>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

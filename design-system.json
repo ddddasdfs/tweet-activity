@@ -1,0 +1,318 @@
+{
+  "designSystem": {
+    "name": "Editorial Minimal",
+    "version": "1.0",
+    "description": "A refined, publishing-inspired design system emphasizing readability, generous whitespace, and typographic hierarchy. Inspired by high-end editorial and writing applications.",
+    
+    "philosophy": {
+      "principles": [
+        "Content-first approach with typography as the primary design element",
+        "Generous whitespace creates breathing room and sophistication",
+        "Subtle visual hierarchy through font weight and size, not color",
+        "Minimal UI chrome - let content speak",
+        "Warmth through off-white backgrounds instead of stark white"
+      ],
+      "mood": ["intellectual", "calm", "professional", "trustworthy", "refined"],
+      "inspiration": ["print magazines", "literary journals", "premium SaaS", "notion", "craft apps"]
+    },
+
+    "colors": {
+      "background": {
+        "primary": "#F7F6F3",
+        "secondary": "#FFFFFF",
+        "tertiary": "#FAFAF8"
+      },
+      "text": {
+        "primary": "#1A1A1A",
+        "secondary": "#666666",
+        "tertiary": "#999999",
+        "muted": "#B3B3B3"
+      },
+      "accent": {
+        "primary": "#1A1A1A",
+        "hover": "#333333"
+      },
+      "ui": {
+        "border": "#E5E5E5",
+        "borderSubtle": "#EFEFEF",
+        "shadow": "rgba(0, 0, 0, 0.06)",
+        "shadowHover": "rgba(0, 0, 0, 0.1)"
+      },
+      "semantic": {
+        "success": "#2D7D46",
+        "warning": "#B8860B",
+        "error": "#C53030",
+        "info": "#2B6CB0"
+      },
+      "decorative": {
+        "windowDotRed": "#FF5F56",
+        "windowDotYellow": "#FFBD2E",
+        "windowDotGreen": "#27CA40"
+      }
+    },
+
+    "typography": {
+      "fontFamilies": {
+        "heading": {
+          "family": "'Playfair Display', 'Libre Baskerville', 'Merriweather', Georgia, serif",
+          "fallback": "Georgia, 'Times New Roman', serif",
+          "style": "Traditional serif with high contrast and elegant curves"
+        },
+        "body": {
+          "family": "'Inter', 'DM Sans', 'Söhne', -apple-system, BlinkMacSystemFont, sans-serif",
+          "fallback": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          "style": "Clean, highly legible sans-serif"
+        },
+        "ui": {
+          "family": "'Inter', 'SF Pro Text', -apple-system, sans-serif",
+          "style": "Compact, functional for interface elements"
+        },
+        "mono": {
+          "family": "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace"
+        }
+      },
+      "scale": {
+        "hero": { "size": "clamp(48px, 6vw, 72px)", "lineHeight": "1.1", "weight": "500", "letterSpacing": "-0.02em" },
+        "h1": { "size": "clamp(36px, 4vw, 48px)", "lineHeight": "1.15", "weight": "500", "letterSpacing": "-0.015em" },
+        "h2": { "size": "clamp(28px, 3vw, 36px)", "lineHeight": "1.2", "weight": "500", "letterSpacing": "-0.01em" },
+        "h3": { "size": "clamp(20px, 2vw, 24px)", "lineHeight": "1.3", "weight": "600" },
+        "h4": { "size": "18px", "lineHeight": "1.4", "weight": "600" },
+        "bodyLarge": { "size": "18px", "lineHeight": "1.7", "weight": "400" },
+        "body": { "size": "16px", "lineHeight": "1.6", "weight": "400" },
+        "bodySmall": { "size": "14px", "lineHeight": "1.5", "weight": "400" },
+        "caption": { "size": "12px", "lineHeight": "1.4", "weight": "500", "letterSpacing": "0.02em", "textTransform": "uppercase" },
+        "micro": { "size": "11px", "lineHeight": "1.4", "weight": "500" }
+      },
+      "paragraphWidth": {
+        "narrow": "45ch",
+        "optimal": "65ch",
+        "wide": "80ch"
+      }
+    },
+
+    "spacing": {
+      "unit": "8px",
+      "scale": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "16px",
+        "lg": "24px",
+        "xl": "32px",
+        "2xl": "48px",
+        "3xl": "64px",
+        "4xl": "96px",
+        "5xl": "128px"
+      },
+      "section": {
+        "paddingY": "clamp(64px, 10vw, 120px)",
+        "paddingX": "clamp(16px, 5vw, 64px)"
+      },
+      "container": {
+        "maxWidth": "1200px",
+        "contentMaxWidth": "800px",
+        "narrowMaxWidth": "600px"
+      }
+    },
+
+    "layout": {
+      "grid": {
+        "columns": 12,
+        "gutter": "24px",
+        "margin": "clamp(16px, 5vw, 64px)"
+      },
+      "patterns": {
+        "centeredHero": {
+          "description": "Centered content with headline, subheadline, CTA, and visual preview below",
+          "alignment": "center",
+          "maxWidth": "800px",
+          "structure": ["logo/nav", "headline", "subheadline", "cta", "product-preview"]
+        },
+        "sidebar": {
+          "description": "Content area with collapsible sidebar for navigation",
+          "sidebarWidth": "240px",
+          "collapsedWidth": "64px"
+        },
+        "cardGrid": {
+          "gap": "24px",
+          "columns": "repeat(auto-fit, minmax(300px, 1fr))"
+        }
+      }
+    },
+
+    "components": {
+      "button": {
+        "primary": {
+          "background": "#1A1A1A",
+          "color": "#FFFFFF",
+          "borderRadius": "100px",
+          "paddingX": "24px",
+          "paddingY": "12px",
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "transition": "all 0.2s ease",
+          "hoverBackground": "#333333",
+          "hoverTransform": "translateY(-1px)"
+        },
+        "secondary": {
+          "background": "transparent",
+          "color": "#1A1A1A",
+          "border": "1px solid #E5E5E5",
+          "borderRadius": "100px",
+          "hoverBackground": "#F5F5F5"
+        },
+        "ghost": {
+          "background": "transparent",
+          "color": "#666666",
+          "hoverColor": "#1A1A1A"
+        }
+      },
+      "card": {
+        "background": "#FFFFFF",
+        "borderRadius": "12px",
+        "border": "1px solid #EFEFEF",
+        "shadow": "0 2px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06)",
+        "padding": "24px",
+        "hoverShadow": "0 4px 12px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08)",
+        "transition": "box-shadow 0.3s ease, transform 0.3s ease"
+      },
+      "windowMockup": {
+        "background": "#FFFFFF",
+        "borderRadius": "12px",
+        "shadow": "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
+        "titleBar": {
+          "height": "40px",
+          "background": "#FAFAFA",
+          "borderBottom": "1px solid #EFEFEF",
+          "dots": {
+            "size": "12px",
+            "gap": "8px",
+            "colors": ["#FF5F56", "#FFBD2E", "#27CA40"]
+          }
+        }
+      },
+      "input": {
+        "background": "#FFFFFF",
+        "border": "1px solid #E5E5E5",
+        "borderRadius": "8px",
+        "padding": "12px 16px",
+        "fontSize": "16px",
+        "focusBorder": "#1A1A1A",
+        "focusShadow": "0 0 0 3px rgba(26, 26, 26, 0.1)"
+      },
+      "navigation": {
+        "height": "64px",
+        "background": "transparent",
+        "logoSize": "24px",
+        "linkStyle": {
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "color": "#666666",
+          "hoverColor": "#1A1A1A"
+        }
+      },
+      "sidebarItem": {
+        "padding": "8px 12px",
+        "borderRadius": "6px",
+        "fontSize": "14px",
+        "activeBackground": "#F5F5F5",
+        "hoverBackground": "#FAFAFA"
+      },
+      "tag": {
+        "fontSize": "11px",
+        "fontWeight": "600",
+        "letterSpacing": "0.05em",
+        "textTransform": "uppercase",
+        "color": "#666666",
+        "padding": "4px 8px",
+        "borderRadius": "4px",
+        "background": "#F5F5F5"
+      }
+    },
+
+    "effects": {
+      "shadows": {
+        "xs": "0 1px 2px rgba(0, 0, 0, 0.04)",
+        "sm": "0 2px 4px rgba(0, 0, 0, 0.04)",
+        "md": "0 4px 12px rgba(0, 0, 0, 0.06)",
+        "lg": "0 8px 24px rgba(0, 0, 0, 0.08)",
+        "xl": "0 16px 48px rgba(0, 0, 0, 0.12)",
+        "inner": "inset 0 1px 2px rgba(0, 0, 0, 0.06)"
+      },
+      "borderRadius": {
+        "none": "0",
+        "sm": "4px",
+        "md": "8px",
+        "lg": "12px",
+        "xl": "16px",
+        "2xl": "24px",
+        "full": "100px"
+      },
+      "transitions": {
+        "fast": "150ms ease",
+        "default": "200ms ease",
+        "slow": "300ms ease",
+        "spring": "300ms cubic-bezier(0.34, 1.56, 0.64, 1)"
+      }
+    },
+
+    "animations": {
+      "fadeIn": {
+        "from": { "opacity": 0, "transform": "translateY(8px)" },
+        "to": { "opacity": 1, "transform": "translateY(0)" },
+        "duration": "400ms",
+        "easing": "cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+      },
+      "staggerDelay": "80ms",
+      "hoverLift": {
+        "transform": "translateY(-2px)",
+        "shadow": "0 8px 24px rgba(0, 0, 0, 0.1)"
+      }
+    },
+
+    "patterns": {
+      "heroSection": {
+        "structure": {
+          "container": "centered, max-width 800px",
+          "headline": "serif, 48-72px, centered",
+          "subheadline": "sans-serif, 18px, muted color, max-width 65ch, centered",
+          "cta": "pill button, dark background, below subheadline with 32px spacing",
+          "visual": "window mockup with product screenshot, below CTA with 64px spacing"
+        }
+      },
+      "appInterface": {
+        "structure": {
+          "layout": "sidebar + main content",
+          "sidebar": "240px width, light background, navigation items",
+          "main": "flexible width, card-based content",
+          "rightPanel": "optional AI assistant or secondary panel, 280px width"
+        }
+      },
+      "contentCard": {
+        "structure": {
+          "label": "uppercase micro text, muted",
+          "title": "h3, serif or bold sans",
+          "body": "body text, 1.6 line height",
+          "meta": "caption text, muted"
+        }
+      }
+    },
+
+    "cssVariables": {
+      "template": {
+        "--color-bg-primary": "#F7F6F3",
+        "--color-bg-secondary": "#FFFFFF",
+        "--color-text-primary": "#1A1A1A",
+        "--color-text-secondary": "#666666",
+        "--color-border": "#E5E5E5",
+        "--font-heading": "'Playfair Display', Georgia, serif",
+        "--font-body": "'Inter', -apple-system, sans-serif",
+        "--radius-sm": "4px",
+        "--radius-md": "8px",
+        "--radius-lg": "12px",
+        "--radius-full": "100px",
+        "--shadow-card": "0 2px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06)",
+        "--transition-default": "200ms ease"
+      }
+    }
+  }
+}
