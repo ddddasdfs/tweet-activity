@@ -5,6 +5,7 @@ Now uses web scraping - NO API KEY REQUIRED!
 """
 
 import os
+import time
 from datetime import datetime, timedelta
 from collections import defaultdict
 from typing import Optional
@@ -26,6 +27,38 @@ load_dotenv()
 
 app = FastAPI(title="Twitter Activity Analyzer")
 
+# ============================================
+# CACHING SYSTEM
+# ============================================
+# Simple in-memory cache with TTL
+cache = {}
+CACHE_TTL = 3600  # 1 hour in seconds
+
+def get_cached(username: str):
+    """Get cached result if still valid"""
+    key = username.lower()
+    if key in cache:
+        data, timestamp = cache[key]
+        if time.time() - timestamp < CACHE_TTL:
+            return data
+        else:
+            # Expired, remove it
+            del cache[key]
+    return None
+
+def set_cache(username: str, data):
+    """Store result in cache"""
+    key = username.lower()
+    cache[key] = (data, time.time())
+
+def get_cache_stats():
+    """Get cache statistics"""
+    valid_count = sum(1 for _, (_, ts) in cache.items() if time.time() - ts < CACHE_TTL)
+    return {
+        "cached_users": valid_count,
+        "cache_ttl_minutes": CACHE_TTL // 60
+    }
+
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
@@ -44,6 +77,7 @@ class ActivityResponse(BaseModel):
     timezone_note: str
     last_tweet_time: Optional[str] = None  # ISO timestamp of most recent tweet
     is_demo: bool
+    is_cached: bool = False  # Whether this result is from cache
 
 
 def generate_demo_data(username: str) -> ActivityResponse:
@@ -144,7 +178,8 @@ async def home(request: Request):
 @app.get("/api/analyze/{username}")
 async def analyze_user(
     username: str, 
-    demo: bool = Query(False, description="Use demo data instead of scraping")
+    demo: bool = Query(False, description="Use demo data instead of scraping"),
+    bypass_cache: bool = Query(False, description="Force fresh scrape, ignore cache")
 ) -> ActivityResponse:
     """Analyze a Twitter user's activity patterns"""
     
@@ -158,9 +193,20 @@ async def analyze_user(
     if demo:
         return generate_demo_data(username)
     
+    # Check cache first (unless bypass requested)
+    if not bypass_cache:
+        cached = get_cached(username)
+        if cached:
+            # Return cached data with a flag
+            cached["is_cached"] = True
+            return ActivityResponse(**cached)
+    
     # Scrape real data
     try:
-        return await fetch_via_scraper(username)
+        result = await fetch_via_scraper(username)
+        # Cache the successful result
+        set_cache(username, result.model_dump())
+        return result
     except HTTPException:
         raise
     except Exception as e:
@@ -170,11 +216,13 @@ async def analyze_user(
 @app.get("/api/status")
 async def get_status():
     """Check API status and mode"""
+    stats = get_cache_stats()
     return {
         "status": "online",
         "mode": "scraper",
         "message": "Using web scraper - No API key required!",
-        "demo_mode": False
+        "demo_mode": False,
+        "cache": stats
     }
 
 

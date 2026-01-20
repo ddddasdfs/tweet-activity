@@ -46,6 +46,14 @@ function setupEventListeners() {
     if (timezoneSelect) {
         timezoneSelect.addEventListener('change', handleTimezoneChange);
     }
+    
+    // Refresh button (bypass cache)
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            handleSearch(new Event('submit'), false, true); // bypass cache
+        });
+    }
 }
 
 function detectUserTimezone() {
@@ -82,7 +90,7 @@ function setupChartDefaults() {
     Chart.defaults.font.family = "'Inter', sans-serif";
 }
 
-async function handleSearch(e, forceDemo = false) {
+async function handleSearch(e, forceDemo = false, bypassCache = false) {
     e.preventDefault();
     
     const username = usernameInput.value.trim().replace('@', '');
@@ -92,13 +100,22 @@ async function handleSearch(e, forceDemo = false) {
         return;
     }
     
-    // Show loading state with message (scraping takes a bit longer)
-    setLoading(true, forceDemo ? 'Loading demo data...' : 'Scraping tweets (this may take 10-20 seconds)...');
+    // Show loading state with message
+    let loadingMsg = 'Checking cache...';
+    if (forceDemo) loadingMsg = 'Loading demo data...';
+    else if (bypassCache) loadingMsg = 'Refreshing data (this may take 10-20 seconds)...';
+    else loadingMsg = 'Loading (may take 10-20 seconds if not cached)...';
+    
+    setLoading(true, loadingMsg);
     hideError();
     
     try {
-        const demoParam = forceDemo ? '?demo=true' : '';
-        const response = await fetch(`/api/analyze/${encodeURIComponent(username)}${demoParam}`);
+        let params = [];
+        if (forceDemo) params.push('demo=true');
+        if (bypassCache) params.push('bypass_cache=true');
+        const queryString = params.length > 0 ? '?' + params.join('&') : '';
+        
+        const response = await fetch(`/api/analyze/${encodeURIComponent(username)}${queryString}`);
         const data = await response.json();
         
         if (!response.ok) {
@@ -251,6 +268,16 @@ function displayResults(data) {
         lastActivityEl.textContent = formatRelativeTime(data.last_tweet_time);
     } else if (lastActivityEl) {
         lastActivityEl.textContent = 'Unknown';
+    }
+    
+    // Cache badge
+    const cacheBadge = document.getElementById('cache-badge');
+    if (cacheBadge) {
+        if (data.is_cached) {
+            cacheBadge.classList.remove('hidden');
+        } else {
+            cacheBadge.classList.add('hidden');
+        }
     }
     
     // Render visualizations with current timezone

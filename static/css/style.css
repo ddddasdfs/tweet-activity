@@ -469,6 +469,39 @@ body {
     font-size: 1rem;
 }
 
+.cache-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-left: var(--space-md);
+    padding: 4px 10px;
+    background: var(--success-subtle);
+    color: var(--success);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.cache-badge.hidden {
+    display: none;
+}
+
+.refresh-btn {
+    background: transparent;
+    border: none;
+    color: var(--success);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 4px;
+    opacity: 0.8;
+    transition: all var(--transition-fast);
+}
+
+.refresh-btn:hover {
+    opacity: 1;
+    transform: rotate(180deg);
+}
+
 /* Insights Card */
 .insights-card {
     padding: var(--space-lg);
