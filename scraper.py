@@ -90,12 +90,28 @@ async def scrape_twitter_activity(username: str, max_tweets: int = 50) -> dict:
                                 # Try to get tweet text (multiple selectors for reliability)
                                 tweet_text = ""
                                 try:
-                                    # Try main tweet text selector
+                                    # Method 1: data-testid tweetText
                                     text_element = await tweet.query_selector('[data-testid="tweetText"]')
+                                    
+                                    # Method 2: div with lang attribute containing the tweet
                                     if not text_element:
-                                        # Fallback: try finding any span with lang attribute (tweet content)
-                                        text_element = await tweet.query_selector('div[lang]')
-                                    if text_element:
+                                        text_element = await tweet.query_selector('div[data-testid="tweetText"] span')
+                                    
+                                    # Method 3: Look for the main text container
+                                    if not text_element:
+                                        text_element = await tweet.query_selector('article div[lang]')
+                                    
+                                    # Method 4: Try getting text from the whole tweet area
+                                    if not text_element:
+                                        # Get all text spans that aren't usernames or timestamps
+                                        spans = await tweet.query_selector_all('div[dir="auto"]:not([data-testid]) > span')
+                                        for span in spans[:3]:
+                                            text = await span.inner_text()
+                                            if text and len(text) > 20 and '@' not in text[:5]:
+                                                tweet_text = text[:280].strip()
+                                                break
+                                    
+                                    if text_element and not tweet_text:
                                         tweet_text = await text_element.inner_text()
                                         tweet_text = tweet_text[:280].strip() if tweet_text else ""
                                 except Exception as e:
