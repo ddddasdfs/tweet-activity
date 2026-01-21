@@ -87,15 +87,19 @@ async def scrape_twitter_activity(username: str, max_tweets: int = 50) -> dict:
                         if time_element:
                             datetime_str = await time_element.get_attribute("datetime")
                             if datetime_str and datetime_str not in [t["datetime"] for t in tweets_data]:
-                                # Try to get tweet text
+                                # Try to get tweet text (multiple selectors for reliability)
                                 tweet_text = ""
                                 try:
+                                    # Try main tweet text selector
                                     text_element = await tweet.query_selector('[data-testid="tweetText"]')
+                                    if not text_element:
+                                        # Fallback: try finding any span with lang attribute (tweet content)
+                                        text_element = await tweet.query_selector('div[lang]')
                                     if text_element:
                                         tweet_text = await text_element.inner_text()
-                                        tweet_text = tweet_text[:280] if tweet_text else ""  # Limit length
-                                except:
-                                    pass
+                                        tweet_text = tweet_text[:280].strip() if tweet_text else ""
+                                except Exception as e:
+                                    tweet_text = ""
                                 
                                 tweets_data.append({
                                     "datetime": datetime_str,
